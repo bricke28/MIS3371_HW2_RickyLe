@@ -39,20 +39,35 @@ function validatePasswords() {
 function generateReview() {
     const form = document.getElementById('patientForm');
     const formData = new FormData(form);
-    const reviewArea = document.getElementById('review-area');
     const content = document.getElementById('review-content');
     
-    reviewArea.style.display = 'block';
-    let html = "<table border='1' style='width:100%; border-collapse: collapse;'>";
+    let html = "<table class='review-table'><tr><th>Field</th><th>Value</th><th>Status</th></tr>";
     
     formData.forEach((value, key) => {
+        let status = "PASS";
+        let statusClass = "pass";
+        let displayValue = value;
+
+        // 1. Check for Blank/Empty values
+        if (!value || value.trim() === "") {
+            status = "ERROR: Field is empty";
+            statusClass = "error";
+            displayValue = "[MISSING]";
+        } 
+        
+        // 2. Special Case: Truncate Zip
         if (key === 'zip' && value.length > 5) {
-            value = value.substring(0, 5) + " (Truncated)";
+            displayValue = value.substring(0, 5);
         }
-        html += `<tr><td><strong>${key.toUpperCase()}</strong></td><td>${value}</td><td>PASS</td></tr>`;
+
+        html += `<tr>
+                    <td><strong>${key.toUpperCase()}</strong></td>
+                    <td>${displayValue}</td>
+                    <td class="${statusClass}">${status}</td>
+                 </tr>`;
     });
     
     html += "</table>";
     content.innerHTML = html;
-    reviewArea.scrollIntoView();
+    document.getElementById('review-area').style.display = 'block';
 }
